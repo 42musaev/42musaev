@@ -1,0 +1,1 @@
+I decided to create a business card website for myself
