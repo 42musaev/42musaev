@@ -1,1 +1,13 @@
+# Python-specific ignores
+__pycache__/
+
+# Poetry
+poetry.lock
+pyproject.toml
+
+# IDE files
 .idea/
+
+# Ignore JWT private and public keys
+certs/jwt-private.pem
+certs/jwt-public.pem

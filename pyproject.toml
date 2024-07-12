@@ -3,11 +3,13 @@ name = "42musaev"
 version = "0.1.0"
 description = ""
 authors = ["Askhab Musaev <42musaev@gmail.com>"]
-license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+pre-commit = "^3.7.1"
+ruff = "^0.5.1"
+fastapi = "^0.111.0"
 
 
 [build-system]
