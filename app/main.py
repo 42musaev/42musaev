@@ -1,12 +1,9 @@
 import uvicorn
+from api import router as api_v1_router
 from fastapi import FastAPI
 
 app = FastAPI()
-
-
-@app.get('/')
-async def index():
-    return {'/': 'index page'}
+app.include_router(api_v1_router)
 
 
 if __name__ == '__main__':

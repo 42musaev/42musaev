@@ -6,5 +6,8 @@ unfixable = ["B"]
 "__init__.py" = ["E402"]
 "**/{tests,docs,tools}/*" = ["E402"]
 
+[lint.isort]
+force-single-line = true
+
 [format]
 quote-style = "single"
