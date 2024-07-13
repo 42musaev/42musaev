@@ -8,6 +8,7 @@ from core.config import settings
 from schemas.user import UserSchema
 
 ACCESS_TOKEN_TYPE: str = 'access'
+REFRESH_TOKEN_TYPE: str = 'refresh'
 
 
 def encode_jwt(
@@ -61,4 +62,19 @@ def create_access_token(
         token_type=ACCESS_TOKEN_TYPE,
         payload=jwt_payload,
         expire_minutes=settings.jwt_settings.access_token_expire_minutes,
+    )
+
+
+def create_refresh_token(
+    user: UserSchema,
+) -> str:
+    jwt_payload = {
+        'email': user.email,
+    }
+    return encode_jwt(
+        token_type=REFRESH_TOKEN_TYPE,
+        payload=jwt_payload,
+        expire_timedelta=timedelta(
+            days=settings.jwt_settings.refresh_token_expire_days
+        ),
     )
