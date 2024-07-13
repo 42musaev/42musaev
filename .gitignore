@@ -9,5 +9,5 @@ pyproject.toml
 .idea/
 
 # Ignore JWT private and public keys
-app/certs/jwt-private.pem
-app/certs/jwt-public.pem
+auth/certs/jwt-private.pem
+auth/certs/jwt-public.pem

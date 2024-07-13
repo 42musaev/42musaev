@@ -14,6 +14,8 @@ class JWTSettings(BaseSettings):
 
 class Settings(BaseSettings):
     jwt_settings: JWTSettings = JWTSettings()
+    database_url: str = 'asyncpg://postgres:password@db:5432/mydatabase'
+    echo_sql: bool = True
 
 
 settings = Settings()
