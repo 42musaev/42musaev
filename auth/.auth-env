@@ -1,4 +1,4 @@
-POSTGRES_USER=user
+POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
-POSTGRES_DB=database
-DATABASE_URL=postgres://user:password@db:5432/database
+POSTGRES_DB=postgres
+DATABASE_URL=postgresql+asyncpg://postgres:password@auth_db:5432/postgres
