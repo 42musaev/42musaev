@@ -1,10 +1,6 @@
 # Python-specific ignores
 __pycache__/
 
-# Poetry
-poetry.lock
-pyproject.toml
-
 # IDE files
 .idea/
 
