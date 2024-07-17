@@ -8,7 +8,9 @@ from typing import Dict
 
 import jwt
 from core.config import settings
+from crud.refresh_session_crud import get_refresh_session_id
 from crud.refresh_session_crud import refresh_session_create
+from crud.refresh_session_crud import update_refresh_session
 from schemas.user import UserSchema
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
@@ -114,10 +116,9 @@ async def create_pair_tokens(
     user: UserSchema,
     session: AsyncSession,
 ) -> Dict[str, str]:
-    check_password(user)
-
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)
+
     decode_refresh_token = decode_jwt(refresh_token)
 
     client_ip = request.client.host
@@ -134,10 +135,13 @@ async def create_pair_tokens(
         'fingerprint': fingerprint,
         'expires': decode_refresh_token.get('exp'),
     }
-    await refresh_session_create(
-        session,
-        data_refresh_session_create,
-    )
+
+    refresh_session_id = await get_refresh_session_id(session, fingerprint)
+
+    if refresh_session_id:
+        await update_refresh_session(session, fingerprint, data_refresh_session_create)
+    else:
+        await refresh_session_create(session, data_refresh_session_create)
 
     response.set_cookie(
         key='refreshToken',
@@ -147,6 +151,7 @@ async def create_pair_tokens(
         path='/api/auth',
         secure=True,
     )
+
     return {
         'access_token': access_token,
         'refresh_token': refresh_token,

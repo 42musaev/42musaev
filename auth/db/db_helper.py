@@ -67,7 +67,7 @@ class DatabaseSessionManager:
 
 
 sessionmanager: DatabaseSessionManager = DatabaseSessionManager(
-    settings.database_url, {'echo': settings.echo_sql}
+    settings.DATABASE_URL, {'echo': settings.echo_sql}
 )
 
 
