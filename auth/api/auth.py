@@ -1,38 +1,21 @@
+from db.db_helper import get_db_session
 from fastapi import APIRouter
-from fastapi import HTTPException
-from jwt import PyJWTError
+from fastapi import Depends
 from schemas.jwt_token import TokenSchema
 from schemas.user import UserSchema
-from services.token import create_access_token
-from services.token import create_refresh_token
-from services.token import decode_jwt
-from starlette import status
+from services.token import create_pair_tokens
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request
+from starlette.responses import Response
 
 router = APIRouter(prefix='/auth')
 
-FAKE_DB = [
-    {
-        'email': '42musaev@gmail.com',
-        'password': 'string',
-    },
-]
-
 
 @router.post('/login', response_model=TokenSchema)
-async def login(user: UserSchema):
-    if user.password == FAKE_DB[0].get('password'):
-        return TokenSchema(
-            access_token=create_access_token(user),
-            refresh_token=create_refresh_token(user),
-        )
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-    )
-
-
-@router.post('/token-check')
-async def token_check(token: str):
-    try:
-        decode_jwt(token)
-    except PyJWTError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED) from e
+async def login(
+    request: Request,
+    response: Response,
+    user: UserSchema,
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await create_pair_tokens(request, response, user, session)

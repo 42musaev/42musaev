@@ -1,14 +1,30 @@
+import hashlib
+import time
 import uuid
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from typing import Dict
 
 import jwt
 from core.config import settings
+from crud.refresh_session_crud import refresh_session_create
 from schemas.user import UserSchema
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
+from starlette.exceptions import HTTPException
+from starlette.requests import Request
+from starlette.responses import Response
 
 ACCESS_TOKEN_TYPE: str = 'access'
 REFRESH_TOKEN_TYPE: str = 'refresh'
+
+FAKE_DB = [
+    {
+        'email': '42musaev@gmail.com',
+        'password': 'string',
+    },
+]
 
 
 def encode_jwt(
@@ -78,3 +94,60 @@ def create_refresh_token(
             days=settings.jwt_settings.refresh_token_expire_days
         ),
     )
+
+
+def generate_fingerprint(unique_string: str) -> str:
+    return hashlib.sha256(unique_string.encode()).hexdigest()
+
+
+def check_password(user: UserSchema):
+    if user.password == FAKE_DB[0].get('password'):
+        return True
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+    )
+
+
+async def create_pair_tokens(
+    request: Request,
+    response: Response,
+    user: UserSchema,
+    session: AsyncSession,
+) -> Dict[str, str]:
+    check_password(user)
+
+    access_token = create_access_token(user)
+    refresh_token = create_refresh_token(user)
+    decode_refresh_token = decode_jwt(refresh_token)
+
+    client_ip = request.client.host
+    user_agent = request.headers.get('user-agent', 'unknown')
+    unique_string = f'{client_ip}-{user_agent}'
+
+    fingerprint = generate_fingerprint(unique_string)
+
+    data_refresh_session_create = {
+        'user_email': decode_refresh_token.get('email'),
+        'refresh_token': refresh_token,
+        'user_agent': user_agent,
+        'ip': client_ip,
+        'fingerprint': fingerprint,
+        'expires': decode_refresh_token.get('exp'),
+    }
+    await refresh_session_create(
+        session,
+        data_refresh_session_create,
+    )
+
+    response.set_cookie(
+        key='refreshToken',
+        value=refresh_token,
+        httponly=True,
+        max_age=decode_refresh_token.get('exp') - int(time.time()),
+        path='/api/auth',
+        secure=True,
+    )
+    return {
+        'access_token': access_token,
+        'refresh_token': refresh_token,
+    }

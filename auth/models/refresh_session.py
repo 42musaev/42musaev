@@ -14,7 +14,7 @@ class RefreshSession(Base):
     user_email: Mapped[str]
     refresh_token: Mapped[str]
     user_agent: Mapped[str]
-    fingerprint: Mapped[str]
     ip: Mapped[str]
+    fingerprint: Mapped[str]
     expires: Mapped[int] = mapped_column(BigInteger)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
