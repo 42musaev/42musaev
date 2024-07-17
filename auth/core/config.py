@@ -17,9 +17,11 @@ class JWTSettings(BaseSettings):
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.auth-env', extra='ignore')
     jwt_settings: JWTSettings = JWTSettings()
-    # database_url: str = 'asyncpg://postgres:password@db:5432/mydatabase'
+
     echo_sql: bool = True
     DATABASE_URL: str
+
+    domain: str = 'localhost'
 
 
 settings = Settings()

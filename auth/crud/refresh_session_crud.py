@@ -1,34 +1,48 @@
 from typing import Dict
 
 from models.refresh_session import RefreshSession
+from sqlalchemy import delete
 from sqlalchemy import insert
 from sqlalchemy import select
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def refresh_session_create(session: AsyncSession, data: Dict) -> int:
-    stmt = insert(RefreshSession).values(**data).returning(RefreshSession.id)
-    result = await session.scalar(stmt)
-    await session.commit()
-    return result
-
-
-async def update_refresh_session(
-    session: AsyncSession, fingerprint: str, data: Dict
+async def create_or_update_refresh_session(
+    session: AsyncSession,
+    data: Dict,
 ) -> int:
-    stmt = (
-        update(RefreshSession)
-        .where(RefreshSession.fingerprint == fingerprint)
-        .values(**data)
-        .returning(RefreshSession.id)
+    # Check if a session with the same fingerprint exists
+    stmt = select(RefreshSession).where(
+        RefreshSession.fingerprint == data.get('fingerprint')
     )
-    result = await session.scalar(stmt)
+    existing_session = await session.scalar(stmt)
+
+    if existing_session:
+        # Update the existing session
+        stmt = (
+            update(RefreshSession)
+            .where(RefreshSession.fingerprint == data.get('fingerprint'))
+            .values(**data)
+            .returning(RefreshSession.id)
+        )
+        result = await session.scalar(stmt)
+    else:
+        # Insert a new session
+        stmt = insert(RefreshSession).values(**data).returning(RefreshSession.id)
+        result = await session.scalar(stmt)
+
     await session.commit()
+
+    # Cleanup if more than 5 sessions exist for the same user_email
+    stmt = select(RefreshSession).where(
+        RefreshSession.user_email == data.get('user_email')
+    )
+    if len((await session.scalars(stmt)).all()) > 5:
+        stmt = delete(RefreshSession).where(
+            RefreshSession.refresh_token != data.get('refresh_token')
+        )
+        await session.execute(stmt)
+        await session.commit()
+
     return result
-
-
-async def get_refresh_session_id(session: AsyncSession, fingerprint: str) -> int | None:
-    stmt = select(RefreshSession).where(RefreshSession.fingerprint == fingerprint)
-    result = await session.execute(stmt)
-    return result.scalar_one_or_none().id
