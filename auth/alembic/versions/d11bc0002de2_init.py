@@ -1,8 +1,8 @@
 """init
 
-Revision ID: ae9bf91362c4
+Revision ID: d11bc0002de2
 Revises:
-Create Date: 2024-07-16 20:45:01.163996
+Create Date: 2024-07-17 21:16:52.319172
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'ae9bf91362c4'
+revision: str = 'd11bc0002de2'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,13 +25,14 @@ def upgrade() -> None:
         'refresh_sessions',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('user_email', sa.String(), nullable=False),
-        sa.Column('refresh_token', sa.String(), nullable=False),
+        sa.Column('refresh_token_jit', sa.String(), nullable=False),
         sa.Column('user_agent', sa.String(), nullable=False),
-        sa.Column('fingerprint', sa.String(), nullable=False),
         sa.Column('ip', sa.String(), nullable=False),
+        sa.Column('fingerprint', sa.String(), nullable=False),
         sa.Column('expires', sa.BigInteger(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('refresh_token_jit'),
     )
     # ### end Alembic commands ###
 

@@ -12,7 +12,7 @@ class RefreshSession(Base):
     __tablename__ = 'refresh_sessions'
 
     user_email: Mapped[str]
-    refresh_token: Mapped[str]
+    refresh_token_jit: Mapped[str] = mapped_column(unique=True)
     user_agent: Mapped[str]
     ip: Mapped[str]
     fingerprint: Mapped[str]

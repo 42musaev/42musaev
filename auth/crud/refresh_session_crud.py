@@ -12,14 +12,12 @@ async def create_or_update_refresh_session(
     session: AsyncSession,
     data: Dict,
 ) -> int:
-    # Check if a session with the same fingerprint exists
     stmt = select(RefreshSession).where(
         RefreshSession.fingerprint == data.get('fingerprint')
     )
     existing_session = await session.scalar(stmt)
 
     if existing_session:
-        # Update the existing session
         stmt = (
             update(RefreshSession)
             .where(RefreshSession.fingerprint == data.get('fingerprint'))
@@ -28,13 +26,11 @@ async def create_or_update_refresh_session(
         )
         result = await session.scalar(stmt)
     else:
-        # Insert a new session
         stmt = insert(RefreshSession).values(**data).returning(RefreshSession.id)
         result = await session.scalar(stmt)
 
     await session.commit()
 
-    # Cleanup if more than 5 sessions exist for the same user_email
     stmt = select(RefreshSession).where(
         RefreshSession.user_email == data.get('user_email')
     )
