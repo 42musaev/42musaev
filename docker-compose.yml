@@ -9,27 +9,50 @@ services:
     command: /bin/sh -c "alembic upgrade head && python3 main.py"
     depends_on:
       - auth_db
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
     restart: always
     volumes:
       - ./auth:/app
+      - ./env/.env.auth:/app/env/.env.auth
     env_file:
-      .env
+      env/.env.auth
 
   auth_db:
     container_name: auth_db_service
     image: postgres:latest
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - 5432:5432
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     env_file:
-      - .env
+      - env/.env.auth
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+
+  users:
+    container_name: users_service
+    build:
+      context: ./
+      dockerfile: users/Dockerfile
+    ports:
+      - 8001:8001
+    command: /bin/sh -c 'alembic upgrade head &&  ./dumps/run_psql.sh && python3 main.py'
+    depends_on:
+      - users_db
+    restart: always
+    volumes:
+      - ./users:/app
+      - ./env/.env.users:/app/env/.env.user
+    env_file:
+      env/.env.users
+
+  users_db:
+    container_name: users_db_service
+    image: postgres:latest
+    ports:
+      - 5433:5433
+    env_file:
+      - env/.env.users
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  auth_db_data:
+  users_db_data:
