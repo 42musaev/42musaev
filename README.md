@@ -1,18 +1,6 @@
 # 42musaev
 
 
-### Setting up the Environment
-
-Create a `.env` file with the following content both globally and in each service directory:
-
-```dotenv
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=password
-POSTGRES_DB=postgres
-DATABASE_URL=postgresql+asyncpg://postgres:password@auth_db:5432/postgres
-```
-
-
 ### Running the Application
 To start the application, run the following command:
 
@@ -32,4 +20,10 @@ To create a new service, use the following command:
 
 ```shell
 make create-service service=<service_name>
+```
+
+### Adding .env file for service
+to add environment variables add the file to /envs
+```shell
+touch env/<filename>
 ```
