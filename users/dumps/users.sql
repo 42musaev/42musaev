@@ -21,7 +21,7 @@ SET row_security = off;
 --
 
 COPY public.users (id, email, password, created_at) FROM stdin;
-1	42musaev@gmail.com	$2b$12$sQj7kF49UYrSYsHLHJBauOcoM1pShMV3rK6/Q57RFyeERvv1htgu6	2024-07-19 09:12:36.697113
+1	user@example.com	$2b$12$sQj7kF49UYrSYsHLHJBauOcoM1pShMV3rK6/Q57RFyeERvv1htgu6	2024-07-19 09:12:36.697113
 \.
 
 

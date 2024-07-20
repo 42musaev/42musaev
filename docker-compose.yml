@@ -1,11 +1,19 @@
 services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth
+      - users
+
   auth:
     container_name: auth_service
     build:
       context: ./
       dockerfile: auth/Dockerfile
-    ports:
-      - 8000:8000
     command: /bin/sh -c "alembic upgrade head && python3 main.py"
     depends_on:
       - auth_db
@@ -14,13 +22,11 @@ services:
       - ./auth:/app
       - ./env/.env.auth:/app/env/.env.auth
     env_file:
-      env/.env.auth
+      - env/.env.auth
 
   auth_db:
     container_name: auth_db_service
     image: postgres:latest
-    ports:
-      - 5432:5432
     env_file:
       - env/.env.auth
     volumes:
@@ -31,9 +37,7 @@ services:
     build:
       context: ./
       dockerfile: users/Dockerfile
-    ports:
-      - 8001:8001
-    command: /bin/sh -c 'alembic upgrade head &&  ./dumps/run_psql.sh && python3 main.py'
+    command: /bin/sh -c "alembic upgrade head && ./dumps/run_psql.sh && python3 main.py"
     depends_on:
       - users_db
     restart: always
@@ -41,13 +45,11 @@ services:
       - ./users:/app
       - ./env/.env.users:/app/env/.env.user
     env_file:
-      env/.env.users
+      - env/.env.users
 
   users_db:
     container_name: users_db_service
     image: postgres:latest
-    ports:
-      - 5433:5433
     env_file:
       - env/.env.users
     volumes:

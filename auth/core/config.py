@@ -11,7 +11,7 @@ class JWTSettings(BaseSettings):
     private_key: Path = BASEDIR / 'certs' / 'jwt-private.pem'
     public_key: Path = BASEDIR / 'certs' / 'jwt-public.pem'
     algorithm: str = 'RS256'
-    access_token_expire_minutes: int = 3
+    access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 90
 
 
