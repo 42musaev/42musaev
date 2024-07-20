@@ -14,6 +14,7 @@ alembic = "^1.13.2"
 sqlalchemy = "^2.0.31"
 asyncpg = "^0.29.0"
 greenlet = "^3.0.3"
+aio-pika = "^9.4.2"
 
 
 [build-system]

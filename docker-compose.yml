@@ -17,6 +17,7 @@ services:
     command: /bin/sh -c "alembic upgrade head && python3 main.py"
     depends_on:
       - auth_db
+      - broker
     restart: always
     volumes:
       - ./auth:/app
@@ -40,6 +41,7 @@ services:
     command: /bin/sh -c "alembic upgrade head && ./dumps/run_psql.sh && python3 main.py"
     depends_on:
       - users_db
+      - broker
     restart: always
     volumes:
       - ./users:/app
@@ -55,6 +57,18 @@ services:
     volumes:
       - users_db_data:/var/lib/postgresql/data
 
+  broker:
+    image: rabbitmq:3-management
+    container_name: broker_service
+    env_file:
+      - env/.env.rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - broker_data:/var/lib/rabbitmq
+
 volumes:
   auth_db_data:
   users_db_data:
+  broker_data:
